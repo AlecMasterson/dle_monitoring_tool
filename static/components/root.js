@@ -1,12 +1,7 @@
 class Root extends React.Component {
     constructor(props) {
         super(props);
-        this.changePage = this.changePage.bind(this);
         this.state = { page: "statusMonitor" };
-    }
-
-    changePage(newPage) {
-        this.setState({ page: newPage });
     }
 
     render() {
@@ -18,32 +13,47 @@ class Root extends React.Component {
             { name: "end", filter: null },
             { name: "status", filter: { type: "TextFilter" } }
         ];
-        const statusMonitorAlert = <p>
-            Sorting functionality works, but the arrows are missing. I know.<br></br>
-            Timestamp Format: GMT/UTC<br></br>
-            Displaying Date: {new Date().toISOString().slice(0, 10)}
-        </p>
 
         const techsLoadedHeaders = [
             { name: "ag", filter: { type: "TextFilter" } },
             { name: "technicianId", filter: { type: "TextFilter" } },
             { name: "capacity", filter: { type: "NumberFilter" } },
-            { name: "geoGrp", filter: { type: "TextFilter" } },
+            { name: "geoGrp", filter: { type: "TextFilter" } }
         ];
 
         const jobsLoadedHeaders = [
             { name: "wrid", filter: { type: "TextFilter" } },
             { name: "jobType", filter: { type: "TextFilter" } },
             { name: "estTechDur", filter: { type: "NumberFilter" } },
-            { name: "geoGrp", filter: { type: "TextFilter" } },
+            { name: "geoGrp", filter: { type: "TextFilter" } }
         ];
 
-        const page = this.state.page;
+        const techAssignmentsHeaders = [
+            { name: "ag", filter: { type: "TextFilter" } },
+            { name: "techId", filter: { type: "TextFilter" } },
+            { name: "type", filter: { type: "TextFilter" } },
+            { name: "geoGroup", filter: null }
+        ];
 
-        let pageView = null;
-        if (page == "statusMonitor") pageView = <Page pageName="Status Monitor" headers={statusMonitorHeaders} api="http://localhost:5000/api/statusMonitor" alert={statusMonitorAlert} />;
-        if (page == "techsLoaded") pageView = <Page pageName="Techs Loaded" headers={techsLoadedHeaders} api="http://localhost:5000/api/techsLoaded" alert={null} />;
-        if (page == "jobsLoaded") pageView = <Page pageName="Jobs Loaded" headers={jobsLoadedHeaders} api="http://localhost:5000/api/jobsLoaded" alert={null} />;
+        const reportHeaders = [
+            { name: "DATE", filter: { type: "TextFilter" } },
+            { name: "AG", filter: { type: "TextFilter" } },
+            { name: "NUM_TECHS", filter: null },
+            { name: "NUM_JOBS", filter: null },
+            { name: "JPT", filter: null },
+            { name: "HPC", filter: null },
+            { name: "MPD", filter: null },
+            { name: "PERC_TECHS_BULKED", filter: { type: "NumberFilter" } },
+            { name: "PERC_JOBS_BULKED", filter: { type: "NumberFilter" } }
+        ];
+
+        const configHeaders = [
+            { name: "ag", filter: { type: "TextFilter" } },
+            { name: "agRouting", filter: { type: "TextFilter" } },
+            { name: "actual_time", filter: null },
+            { name: "overtime", filter: null },
+            { name: "durations", filter: null }
+        ];
 
         return (
             <div>
@@ -51,7 +61,7 @@ class Root extends React.Component {
                     <ReactBootstrap.Navbar.Brand href="#statusMonitor">DLEH Admin App</ReactBootstrap.Navbar.Brand>
                     <ReactBootstrap.Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <ReactBootstrap.Navbar.Collapse id="responsive-navbar-nav">
-                        <ReactBootstrap.Nav className="mr-auto" defaultActiveKey="statusMonitor" onSelect={e => this.changePage(e)}>
+                        <ReactBootstrap.Nav className="mr-auto" defaultActiveKey="statusMonitor" onSelect={e => this.setState({ page: e })}>
                             <ReactBootstrap.Nav.Link eventKey="statusMonitor">Status Monitor</ReactBootstrap.Nav.Link>
                             <ReactBootstrap.Nav.Link eventKey="techsLoaded">Techs Loaded</ReactBootstrap.Nav.Link>
                             <ReactBootstrap.Nav.Link eventKey="jobsLoaded">Jobs Loaded</ReactBootstrap.Nav.Link>
@@ -62,7 +72,25 @@ class Root extends React.Component {
                         </ReactBootstrap.Nav>
                     </ReactBootstrap.Navbar.Collapse>
                 </ReactBootstrap.Navbar>
-                {pageView}
+
+                <div className="container">
+                    <div className="alert alert-warning alert-dismissible fade show d-none d-sm-none d-md-none d-lg-block mt-4" role="alert">
+                        Dorting functionality works, but the arrows are missing. I know.<br></br>
+                        Timestamp Format: GMT/UTC<br></br>
+                        Displaying Date: {new Date().toISOString().slice(0, 10)}
+                        <button type="button" className="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+
+                {(this.state.page == "statusMonitor") ? <Page pageName="Status Monitor" headers={statusMonitorHeaders} api="http://localhost:5000/api/statusMonitor" /> : null}
+                {(this.state.page == "techsLoaded") ? <Page pageName="Techs Loaded" headers={techsLoadedHeaders} api="http://localhost:5000/api/techsLoaded" /> : null}
+                {(this.state.page == "jobsLoaded") ? <Page pageName="Jobs Loaded" headers={jobsLoadedHeaders} api="http://localhost:5000/api/jobsLoaded" /> : null}
+                {(this.state.page == "techAssignments") ? <Page pageName="Tech Assignments" headers={techAssignmentsHeaders} api="http://localhost:5000/api/techAssignments" /> : null}
+                {(this.state.page == "report") ? <Page pageName="Report" headers={reportHeaders} api="http://localhost:5000/api/report" /> : null}
+                {(this.state.page == "config") ? <Page pageName="Universal Config" headers={configHeaders} api="http://localhost:5000/api/config" /> : null}
+                {(this.state.page == "contact") ? <h1 className="text-center">Contact Coming Soon</h1> : null}
             </div>
         );
     }
@@ -109,15 +137,6 @@ class Page extends React.Component {
                     </ReactBootstrap.Card.Header>
 
                     <ReactBootstrap.Card.Body>
-                        {(this.props.alert == null) ? null :
-                            <div className="alert alert-warning alert-dismissible fade show d-none d-sm-none d-md-none d-lg-block" role="alert">
-                                {this.props.alert}
-                                <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        }
-
                         <Table name={this.props.pageName} data={this.state.data} headers={this.props.headers} />
                     </ReactBootstrap.Card.Body>
 
@@ -134,8 +153,8 @@ class Table extends React.Component {
                 <BootstrapTable className="d-none d-sm-none d-md-none d-lg-block" data={this.props.data} keyField={this.props.headers[0]["name"]} pagination hover condensed striped>
                     {this.props.headers.map((item) =>
                         <TableHeaderColumn
-                            dataField={this.props.name + item["name"]}
-                            key={this.props.name + item["name"]}
+                            dataField={item["name"]}
+                            key={item["name"]}
                             dataSort
                             filter={(item["filter"] != null) ? { type: item["filter"]["type"] } : null}
                             headerAlign="center"
