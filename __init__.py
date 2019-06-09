@@ -1,7 +1,5 @@
 from flask import Flask, render_template, json
-import warnings, pymongo, datetime
-import pandas
-import time
+import warnings, pymongo, datetime, pandas, time
 
 def get_mongo_connection():
     warnings.filterwarnings('ignore')
@@ -10,6 +8,20 @@ def get_mongo_connection():
         'DLEHsW33t!!p0t4t0',
         'alph986.aldc.att.com:27017,alph987.aldc.att.com:27017,clph912.sldc.sbc.com:27017,clph913.sldc.sbc.com:27017,clph914.sldc.sbc.com:27017,blth197.bhdc.att.com:27017,blth199.bhdc.att.com:27017/admin?readPreference=primary'
     ))
+
+def get_data(database, collectionName, query):
+    if database:
+        mongo = get_mongo_connection()
+        df = pandas.DataFrame.from_records(mongo['DLEH'][collectionName].find(query))
+        if '_class' in df.columns: df.drop(columns=['_class'], inplace=True)
+        if '_id' in df.columns: df.drop(columns=['_id'], inplace=True)
+
+        mongo.close()
+    else:
+        df = pandas.read_csv('DLEH_Admin_App/data/DLEH.{}.csv'.format(collectionName))
+        time.sleep(1)
+
+    return df
 
 def create_app():
     app = Flask(__name__)
@@ -21,19 +33,11 @@ def create_app():
 
     @app.route('/api/statusMonitor/')
     def apiStatusMonitor():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['STATUS'].find({'date': datetime.datetime.now().strftime('%Y-%m-%d')}))
-            df.drop(columns=['_class', '_id'], inplace=True)
+        df = get_data(database, 'STATUS', {'date': datetime.datetime.now().strftime('%Y-%m-%d')})
 
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.STATUS.csv')
-
+        if not database:
             df['start'] = df['start'].str.slice(11, 19)
             df['end'] = df['end'].str.slice(11, 19)
-
-            time.sleep(2)
 
         return app.response_class(
             response=df.to_json(orient='records'),
@@ -43,16 +47,7 @@ def create_app():
 
     @app.route('/api/techsLoaded/')
     def apiTechsLoaded():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['TECHS'].find({'date': datetime.datetime.now().strftime('%Y-%m-%d')}))
-            df.drop(columns=['_class', '_id'], inplace=True)
-
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.TECHS.csv')
-
-            time.sleep(1)
+        df = get_data(database, 'TECHS', {'date': datetime.datetime.now().strftime('%Y-%m-%d')})
 
         return app.response_class(
             response=df.to_json(orient='records'),
@@ -62,16 +57,7 @@ def create_app():
 
     @app.route('/api/jobsLoaded/')
     def apiJobsLoaded():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['JOBS'].find({'date': datetime.datetime.now().strftime('%Y-%m-%d')}))
-            df.drop(columns=['_class', '_id'], inplace=True)
-
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.JOBS.csv')
-
-            time.sleep(1)
+        df = get_data(database, 'JOBS', {'date': datetime.datetime.now().strftime('%Y-%m-%d')})
 
         return app.response_class(
             response=df.to_json(orient='records'),
@@ -81,16 +67,7 @@ def create_app():
 
     @app.route('/api/techAssignments/')
     def apiTechAssignments():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['BULK_TECH_ASSIGNMENT'].find({'date': datetime.datetime.now().strftime('%m/%d/%Y')}))
-            df.drop(columns=['_id'], inplace=True)
-
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.BULK_TECH_ASSIGNMENT.csv')
-
-            time.sleep(1)
+        df = get_data(database, 'BULK_TECH_ASSIGNMENT', {'date': datetime.datetime.now().strftime('%m/%d/%Y')})
 
         return app.response_class(
             response=df.to_json(orient='records'),
@@ -100,16 +77,7 @@ def create_app():
 
     @app.route('/api/report/')
     def apiReport():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['REPORT'].find({}))
-            df.drop(columns=['_id'], inplace=True)
-
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.REPORT.csv')
-
-            time.sleep(1)
+        df = get_data(database, 'REPORT', {})
 
         return app.response_class(
             response=df.to_json(orient='records'),
@@ -119,16 +87,7 @@ def create_app():
 
     @app.route('/api/config/')
     def apiConfig():
-        if database:
-            mongo = get_mongo_connection()
-            df = pandas.DataFrame.from_records(mongo['DLEH']['UNIVERSAL_CONFIG_CDOO'].find({}))
-            df.drop(columns=['_id'], inplace=True)
-
-            mongo.close()
-        else:
-            df = pandas.read_csv('flaskr/data/DLEH.UNIVERSAL_CONFIG_CDOO.csv')
-
-            time.sleep(1)
+        df = get_data(database, 'UNIVERSAL_CONFIG_CDOO', {})
 
         return app.response_class(
             response=df.to_json(orient='records'),
