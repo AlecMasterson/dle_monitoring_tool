@@ -1,11 +1,13 @@
 class Root extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { page: "statusMonitor" };
-    }
 
-    render() {
-        const statusMonitorHeaders = [
+        this.toggleSidebar = this.toggleSidebar.bind(this);
+        this.changePage = this.changePage.bind(this);
+
+        this.state = { sidebarToggled: false, page: "Status Monitor" };
+
+        this.statusMonitorHeaders = [
             { name: "ag", filter: { type: "TextFilter" } },
             { name: "service", filter: { type: "TextFilter" } },
             { name: "run", filter: { type: "NumberFilter" } },
@@ -14,28 +16,27 @@ class Root extends React.Component {
             { name: "status", filter: { type: "TextFilter" } }
         ];
 
-        const techsLoadedHeaders = [
+        this.techsLoadedHeaders = [
             { name: "ag", filter: { type: "TextFilter" } },
             { name: "technicianId", filter: { type: "TextFilter" } },
             { name: "capacity", filter: { type: "NumberFilter" } },
             { name: "geoGrp", filter: { type: "TextFilter" } }
         ];
 
-        const jobsLoadedHeaders = [
+        this.jobsLoadedHeaders = [
             { name: "wrid", filter: { type: "TextFilter" } },
             { name: "jobType", filter: { type: "TextFilter" } },
             { name: "estTechDur", filter: { type: "NumberFilter" } },
             { name: "geoGrp", filter: { type: "TextFilter" } }
         ];
 
-        const techAssignmentsHeaders = [
+        this.techAssignmentsHeaders = [
             { name: "ag", filter: { type: "TextFilter" } },
             { name: "techId", filter: { type: "TextFilter" } },
-            { name: "type", filter: { type: "TextFilter" } },
             { name: "geoGroup", filter: null }
         ];
 
-        const reportHeaders = [
+        this.reportHeaders = [
             { name: "DATE", filter: { type: "TextFilter" } },
             { name: "AG", filter: { type: "TextFilter" } },
             { name: "NUM_TECHS", filter: null },
@@ -47,125 +48,99 @@ class Root extends React.Component {
             { name: "PERC_JOBS_BULKED", filter: { type: "NumberFilter" } }
         ];
 
-        const configHeaders = [
+        this.configHeaders = [
             { name: "ag", filter: { type: "TextFilter" } },
             { name: "agRouting", filter: { type: "TextFilter" } },
             { name: "actual_time", filter: null },
             { name: "overtime", filter: null },
             { name: "durations", filter: null }
         ];
+    }
 
+    toggleSidebar() {
+        this.setState({ sidebarToggled: !this.state.sidebarToggled });
+    }
+
+    changePage(newPage) {
+        this.setState({ page: newPage });
+    }
+
+    render() {
         return (
-            <div>
-                <ReactBootstrap.Navbar collapseOnSelect expand="md" bg="dark" variant="dark">
-                    <ReactBootstrap.Navbar.Brand href="#statusMonitor">DLEH Admin App</ReactBootstrap.Navbar.Brand>
-                    <ReactBootstrap.Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                    <ReactBootstrap.Navbar.Collapse id="responsive-navbar-nav">
-                        <ReactBootstrap.Nav className="mr-auto" defaultActiveKey="statusMonitor" onSelect={e => this.setState({ page: e })}>
-                            <ReactBootstrap.Nav.Link eventKey="statusMonitor">Status Monitor</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="techsLoaded">Techs Loaded</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="jobsLoaded">Jobs Loaded</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="techAssignments">Tech Assignments</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="report">Report</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="config">Universal Config</ReactBootstrap.Nav.Link>
-                            <ReactBootstrap.Nav.Link eventKey="contact">Contact</ReactBootstrap.Nav.Link>
-                        </ReactBootstrap.Nav>
-                    </ReactBootstrap.Navbar.Collapse>
-                </ReactBootstrap.Navbar>
+            < div id="wrapper" >
+                <ul className={"navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" + (this.state.sidebarToggled ? " toggled" : "")} id="mainSidebar">
 
-                <div className="container">
-                    <div className="alert alert-warning alert-dismissible fade show d-none d-sm-none d-md-none d-lg-block mt-4" role="alert">
-                        Dorting functionality works, but the arrows are missing. I know.<br></br>
-                        Timestamp Format: GMT/UTC<br></br>
-                        Displaying Date: {new Date().toISOString().slice(0, 10)}
-                        <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <a className="sidebar-brand d-flex align-items-center justify-content-center" href="">
+                        <div className="sidebar-brand-icon">D<sup>2</sup></div>
+                        <div className="sidebar-brand-text mx-3">DLEH Admin App</div>
+                    </a>
+
+                    <hr className="sidebar-divider" />
+                    <div className="sidebar-heading">Debug</div>
+
+                    <NavItem name="Status Monitor" classes="fas fa-fw fa-table" active={this.state.page == "Status Monitor"} handler={this.changePage} />
+
+                    <hr className="sidebar-divider" />
+                    <div className="sidebar-heading">Database Viewer</div>
+
+                    <li className={"nav-item" + ((this.state.page == "TECHS" || this.state.page == "JOBS" || this.state.page == "REF_TABLE") ? " active" : "")}>
+                        <a className="nav-link collapsed" href="" data-toggle="collapse" data-target="#loadDataSidebar" aria-expanded="true" aria-controls="loadDataSidebar">
+                            <i className="fas fa-fw fa-folder"></i>
+                            <span>Load Data</span>
+                        </a>
+                        <div id="loadDataSidebar" className="collapse" aria-labelledby="headingTwo" data-parent="#mainSidebar">
+                            <div className="bg-white py-2 collapse-inner rounded">
+                                <h6 className="collapse-header">Load Data Tables</h6>
+                                <a className="collapse-item" onClick={() => this.changePage("TECHS")} style={{ cursor: "pointer" }}>TECHS</a>
+                                <a className="collapse-item" onClick={() => this.changePage("JOBS")} style={{ cursor: "pointer" }}>JOBS</a>
+                                <a className="collapse-item" onClick={() => this.changePage("REF_TABLE")} style={{ cursor: "pointer" }}>REF_TABLE</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <NavItem name="Distance Matrix" classes="fas fa-fw fa-table" active={this.state.page == "Distance Matrix"} handler={this.changePage} />
+                    <NavItem name="Tech Assignments" classes="fas fa-fw fa-table" active={this.state.page == "Tech Assignments"} handler={this.changePage} />
+                    <NavItem name="Report" classes="fas fa-fw fa-chart-area" active={this.state.page == "Report"} handler={this.changePage} />
+                    <NavItem name="Universal Config" classes="fas fa-fw fa-cog" active={this.state.page == "Universal Config"} handler={this.changePage} />
+
+                    <hr className="sidebar-divider" />
+                    <div className="sidebar-heading">Other</div>
+
+                    <NavItem name="Contact Me" classes="fas fa-fw fa-user" active={this.state.page == "Contact Me"} handler={this.changePage} />
+
+                    <hr className="sidebar-divider d-none d-md-block" />
+
+                    <div className="text-center d-none d-md-inline">
+                        <button className="rounded-circle border-0" id="sidebarToggle" onClick={this.toggleSidebar}></button>
+                    </div>
+                </ul>
+                <div id="content-wrapper" className="d-flex flex-column">
+                    <div id="content">
+                        {(this.state.page == "Status Monitor") ? <Page pageName="Status Monitor" headers={this.statusMonitorHeaders} api="/api/statusMonitor" /> : null}
+                        {(this.state.page == "TECHS") ? <Page pageName="Techs Loaded" headers={this.techsLoadedHeaders} api="/api/techsLoaded" /> : null}
+                        {(this.state.page == "JOBS") ? <Page pageName="Jobs Loaded" headers={this.jobsLoadedHeaders} api="/api/jobsLoaded" /> : null}
+                        {(this.state.page == "REF_TABLE") ? <Page pageName="Ref Table" /> : null}
+                        {(this.state.page == "Distance Matrix") ? <Page pageName="Distance Matrix" /> : null}
+                        {(this.state.page == "Tech Assignments") ? <Page pageName="Tech Assignments" /> : null}
+                        {(this.state.page == "Report") ? <Page pageName="Report" /> : null}
+                        {(this.state.page == "Universal Config") ? <Page pageName="Universal Config" headers={this.configHeaders} api="/api/config" /> : null}
+                        {(this.state.page == "Contact Me") ? <Page pageName="Contact Me" /> : null}
                     </div>
                 </div>
-
-                {(this.state.page == "statusMonitor") ? <Page pageName="Status Monitor" headers={statusMonitorHeaders} api="http://localhost:5000/api/statusMonitor" /> : null}
-                {(this.state.page == "techsLoaded") ? <Page pageName="Techs Loaded" headers={techsLoadedHeaders} api="http://localhost:5000/api/techsLoaded" /> : null}
-                {(this.state.page == "jobsLoaded") ? <Page pageName="Jobs Loaded" headers={jobsLoadedHeaders} api="http://localhost:5000/api/jobsLoaded" /> : null}
-                {(this.state.page == "techAssignments") ? <Page pageName="Tech Assignments" headers={techAssignmentsHeaders} api="http://localhost:5000/api/techAssignments" /> : null}
-                {(this.state.page == "report") ? <Page pageName="Report" headers={reportHeaders} api="http://localhost:5000/api/report" /> : null}
-                {(this.state.page == "config") ? <Page pageName="Universal Config" headers={configHeaders} api="http://localhost:5000/api/config" /> : null}
-                {(this.state.page == "contact") ? <h1 className="text-center">Contact Coming Soon</h1> : null}
-            </div>
+            </div >
         );
     }
 }
 
-class Page extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleLoadData = this.handleLoadData.bind(this);
-        this.getData = this.getData.bind(this);
-        this.state = { data: null, isLoading: false };
-    }
-
-    handleLoadData() {
-        this.setState({ isLoading: true }, () => this.getData());
-    }
-
-    async getData() {
-        const response = await fetch(this.props.api);
-        const data = await response.json();
-        this.setState({ data: data, isLoading: false });
-    }
-
+class NavItem extends React.Component {
     render() {
         return (
-            <ReactBootstrap.Container className="col-md-10">
-                <ReactBootstrap.Card className="my-4">
-
-                    <ReactBootstrap.Card.Header>
-                        <ReactBootstrap.Card.Title>
-                            <h1 className="text-center">
-                                {this.props.pageName}
-                                <ReactBootstrap.Button
-                                    className="d-none d-sm-none d-md-none d-lg-block"
-                                    style={{ position: "absolute", top: 8, right: 8 }}
-                                    variant="secondary"
-                                    size="lg"
-                                    disabled={this.state.isLoading}
-                                    onClick={!this.state.isLoading ? this.handleLoadData : null}
-                                >Refresh</ReactBootstrap.Button>
-                            </h1>
-                        </ReactBootstrap.Card.Title>
-                    </ReactBootstrap.Card.Header>
-
-                    <ReactBootstrap.Card.Body>
-                        <Table name={this.props.pageName} data={this.state.data} headers={this.props.headers} />
-                    </ReactBootstrap.Card.Body>
-
-                </ReactBootstrap.Card>
-            </ReactBootstrap.Container>
-        );
-    }
-}
-
-class Table extends React.Component {
-    render() {
-        return (
-            <div>
-                <BootstrapTable className="d-none d-sm-none d-md-none d-lg-block" data={this.props.data} keyField={this.props.headers[0]["name"]} pagination hover condensed striped>
-                    {this.props.headers.map((item) =>
-                        <TableHeaderColumn
-                            dataField={item["name"]}
-                            key={item["name"]}
-                            dataSort
-                            filter={(item["filter"] != null) ? { type: item["filter"]["type"] } : null}
-                            headerAlign="center"
-                            dataAlign="center"
-                        >{item["name"].toUpperCase()}</TableHeaderColumn>
-                    )}
-                </BootstrapTable>
-                <h2 className="d-none d-block d-sm-block d-md-block d-lg-none text-center">
-                    Use a Larger Screen to View the Table
-                </h2>
-            </div>
+            <li className={"nav-item" + (this.props.active ? " active" : "")}>
+                <a className="nav-link" onClick={() => this.props.handler(this.props.name)} style={{ cursor: "pointer" }}>
+                    <i className={this.props.classes}></i>
+                    <span>{this.props.name}</span>
+                </a>
+            </li>
         );
     }
 }

@@ -8,25 +8,31 @@
         <meta name="description" content="DLEH Admin App">
 
         <title>DLEH Admin App</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/react-bootstrap-table.min.css') }}">
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='fonts/css/all.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='fonts/css/google-fonts.css') }}">
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/core/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/react-table/react-bootstrap-table.min.css') }}">
 </head>
 
-<body style="background-color: #555555;">
+<body className="bg-gray-300">
         <div id="root"></div>
 
-        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-
-        <script type="text/javascript" src="{{ url_for('static', filename='js/react.development.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/react-dom.development.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/babel.min.js') }}"></script>
-
-        <script type="text/javascript" src="{{ url_for('static', filename='js/react-bootstrap.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/core/jquery.min.js') }}"></script>
         <script type="text/javascript"
-                src="{{ url_for('static', filename='js/react-bootstrap-table.min.js') }}"></script>
+                src="{{ url_for('static', filename='js/core/bootstrap.bundle.min.js') }}"></script>
 
+        <script type="text/javascript" src="{{ url_for('static', filename='js/react/react.development.js') }}"></script>
+        <script type="text/javascript"
+                src="{{ url_for('static', filename='js/react/react-dom.development.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/react/babel.min.js') }}"></script>
+
+        <script type="text/javascript"
+                src="{{ url_for('static', filename='js/react-table/react-bootstrap-table.min.js') }}"></script>
+
+        <script type="text/babel" src="{{ url_for('static', filename='components/table.js') }}"></script>
+        <script type="text/babel" src="{{ url_for('static', filename='components/page.js') }}"></script>
         <script type="text/babel" src="{{ url_for('static', filename='components/root.js') }}"></script>
 </body>
 

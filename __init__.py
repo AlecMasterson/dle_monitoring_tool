@@ -1,5 +1,10 @@
 from flask import Flask, render_template, json
-import warnings, pymongo, datetime, pandas, time
+import warnings
+import pymongo
+import datetime
+import pandas
+import time
+
 
 def get_mongo_connection():
     warnings.filterwarnings('ignore')
@@ -9,23 +14,27 @@ def get_mongo_connection():
         'alph986.aldc.att.com:27017,alph987.aldc.att.com:27017,clph912.sldc.sbc.com:27017,clph913.sldc.sbc.com:27017,clph914.sldc.sbc.com:27017,blth197.bhdc.att.com:27017,blth199.bhdc.att.com:27017/admin?readPreference=primary'
     ))
 
+
 def get_data(database, collectionName, query):
     if database:
         mongo = get_mongo_connection()
         df = pandas.DataFrame.from_records(mongo['DLEH'][collectionName].find(query))
-        if '_class' in df.columns: df.drop(columns=['_class'], inplace=True)
-        if '_id' in df.columns: df.drop(columns=['_id'], inplace=True)
+        if '_class' in df.columns:
+            df.drop(columns=['_class'], inplace=True)
+        if '_id' in df.columns:
+            df.drop(columns=['_id'], inplace=True)
 
         mongo.close()
     else:
-        df = pandas.read_csv('DLEH_Admin_App/data/DLEH.{}.csv'.format(collectionName))
+        df = pandas.read_csv('data/DLEH.{}.csv'.format(collectionName))
         time.sleep(1)
 
     return df
 
+
 def create_app():
     app = Flask(__name__)
-    database = True
+    database = False
 
     @app.route('/')
     def home():
@@ -96,3 +105,7 @@ def create_app():
         )
 
     return app
+
+
+if __name__ == '__main__':
+    create_app().run(host='0.0.0.0', port=31210, debug=True)
