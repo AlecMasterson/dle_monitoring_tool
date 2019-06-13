@@ -5,56 +5,7 @@ class Root extends React.Component {
         this.toggleSidebar = this.toggleSidebar.bind(this);
         this.changePage = this.changePage.bind(this);
 
-        this.state = { sidebarToggled: false, page: "Status Monitor" };
-
-        this.statusMonitorHeaders = [
-            { name: "ag", filter: { type: "TextFilter" } },
-            { name: "service", filter: { type: "TextFilter" } },
-            { name: "run", filter: { type: "NumberFilter" } },
-            { name: "start", filter: null },
-            { name: "end", filter: null },
-            { name: "status", filter: { type: "TextFilter" } }
-        ];
-
-        this.techsLoadedHeaders = [
-            { name: "ag", filter: { type: "TextFilter" } },
-            { name: "technicianId", filter: { type: "TextFilter" } },
-            { name: "capacity", filter: { type: "NumberFilter" } },
-            { name: "geoGrp", filter: { type: "TextFilter" } }
-        ];
-
-        this.jobsLoadedHeaders = [
-            { name: "wrid", filter: { type: "TextFilter" } },
-            { name: "jobType", filter: { type: "TextFilter" } },
-            { name: "estTechDur", filter: { type: "NumberFilter" } },
-            { name: "geoGrp", filter: { type: "TextFilter" } }
-        ];
-
-        this.techAssignmentsHeaders = [
-            { name: "ag", filter: { type: "TextFilter" } },
-            { name: "techId", filter: { type: "TextFilter" } },
-            { name: "geoGroup", filter: null }
-        ];
-
-        this.reportHeaders = [
-            { name: "DATE", filter: { type: "TextFilter" } },
-            { name: "AG", filter: { type: "TextFilter" } },
-            { name: "NUM_TECHS", filter: null },
-            { name: "NUM_JOBS", filter: null },
-            { name: "JPT", filter: null },
-            { name: "HPC", filter: null },
-            { name: "MPD", filter: null },
-            { name: "PERC_TECHS_BULKED", filter: { type: "NumberFilter" } },
-            { name: "PERC_JOBS_BULKED", filter: { type: "NumberFilter" } }
-        ];
-
-        this.configHeaders = [
-            { name: "ag", filter: { type: "TextFilter" } },
-            { name: "agRouting", filter: { type: "TextFilter" } },
-            { name: "actual_time", filter: null },
-            { name: "overtime", filter: null },
-            { name: "durations", filter: null }
-        ];
+        this.state = { sidebarToggled: false, currentPage: "STATUS MONITOR" };
     }
 
     toggleSidebar() {
@@ -62,13 +13,33 @@ class Root extends React.Component {
     }
 
     changePage(newPage) {
-        this.setState({ page: newPage });
+        this.setState({ currentPage: newPage });
     }
 
     render() {
+        const sidebarToggled = this.state.sidebarToggled;
+        const pageName = this.state.currentPage;
+
+        let page = null;
+        if (pageName == "STATUS MONITOR") {
+            page = <StatusMonitor />
+        }
+        if (pageName == "TECHS") {
+            page = <Structure pageName="TECHS LOADED" api="/api/techsLoaded" headers={["ag", "technicianId", "geoGrp", "capacity"]} />
+        }
+        if (pageName == "JOBS") {
+            page = <Structure pageName="JOBS LOADED" api="/api/jobsLoaded" headers={["ag", "wrid", "jobType", "geoGrp", "estTechDur"]} />
+        }
+        if (pageName == "UNIVERSAL CONFIG") {
+            page = <Structure pageName="UNIVERSAL CONFIG" api="/api/config" headers={["ag", "agRouting", "actual_time", "overtime", "durations"]} />
+        }
+        if (page == null) {
+            page = <h1 className="font-weight-bold text-uppercase text-center mt-4">"{pageName}" PAGE COMING SOON</h1>;
+        }
+
         return (
             < div id="wrapper" >
-                <ul className={"navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" + (this.state.sidebarToggled ? " toggled" : "")} id="mainSidebar">
+                <ul className={"navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" + (sidebarToggled ? " toggled" : "")} id="mainSidebar">
 
                     <a className="sidebar-brand d-flex align-items-center justify-content-center" href="">
                         <div className="sidebar-brand-icon">D<sup>2</sup></div>
@@ -76,21 +47,21 @@ class Root extends React.Component {
                     </a>
 
                     <hr className="sidebar-divider" />
-                    <div className="sidebar-heading">Debug</div>
+                    <div className="sidebar-heading">TOOLS</div>
 
-                    <NavItem name="Status Monitor" classes="fas fa-fw fa-table" active={this.state.page == "Status Monitor"} handler={this.changePage} />
+                    <NavItem name="STATUS MONITOR" classes="fas fa-fw fa-table" active={pageName == "STATUS MONITOR"} handler={this.changePage} />
 
                     <hr className="sidebar-divider" />
-                    <div className="sidebar-heading">Database Viewer</div>
+                    <div className="sidebar-heading">DATABASE VIEWER</div>
 
-                    <li className={"nav-item" + ((this.state.page == "TECHS" || this.state.page == "JOBS" || this.state.page == "REF_TABLE") ? " active" : "")}>
+                    <li className={"nav-item" + ((pageName == "TECHS" || pageName == "JOBS" || pageName == "REF_TABLE") ? " active" : "")}>
                         <a className="nav-link collapsed" href="" data-toggle="collapse" data-target="#loadDataSidebar" aria-expanded="true" aria-controls="loadDataSidebar">
                             <i className="fas fa-fw fa-folder"></i>
-                            <span>Load Data</span>
+                            <span>LOAD DATA</span>
                         </a>
                         <div id="loadDataSidebar" className="collapse" aria-labelledby="headingTwo" data-parent="#mainSidebar">
                             <div className="bg-white py-2 collapse-inner rounded">
-                                <h6 className="collapse-header">Load Data Tables</h6>
+                                <h6 className="collapse-header">LOAD DATA TABLES</h6>
                                 <a className="collapse-item" onClick={() => this.changePage("TECHS")} style={{ cursor: "pointer" }}>TECHS</a>
                                 <a className="collapse-item" onClick={() => this.changePage("JOBS")} style={{ cursor: "pointer" }}>JOBS</a>
                                 <a className="collapse-item" onClick={() => this.changePage("REF_TABLE")} style={{ cursor: "pointer" }}>REF_TABLE</a>
@@ -98,15 +69,15 @@ class Root extends React.Component {
                         </div>
                     </li>
 
-                    <NavItem name="Distance Matrix" classes="fas fa-fw fa-table" active={this.state.page == "Distance Matrix"} handler={this.changePage} />
-                    <NavItem name="Tech Assignments" classes="fas fa-fw fa-table" active={this.state.page == "Tech Assignments"} handler={this.changePage} />
-                    <NavItem name="Report" classes="fas fa-fw fa-chart-area" active={this.state.page == "Report"} handler={this.changePage} />
-                    <NavItem name="Universal Config" classes="fas fa-fw fa-cog" active={this.state.page == "Universal Config"} handler={this.changePage} />
+                    <NavItem name="DISTANCE MATRID" classes="fas fa-fw fa-table" active={pageName == "DISTANCE MATRIX"} handler={this.changePage} />
+                    <NavItem name="TECH ASSIGNMENTS" classes="fas fa-fw fa-table" active={pageName == "TECH ASSIGNMENTS"} handler={this.changePage} />
+                    <NavItem name="REPORT" classes="fas fa-fw fa-chart-area" active={pageName == "REPORT"} handler={this.changePage} />
+                    <NavItem name="UNIVERSAL CONFIG" classes="fas fa-fw fa-cog" active={pageName == "UNIVERSAL CONFIG"} handler={this.changePage} />
 
                     <hr className="sidebar-divider" />
-                    <div className="sidebar-heading">Other</div>
+                    <div className="sidebar-heading">OTHER</div>
 
-                    <NavItem name="Contact Me" classes="fas fa-fw fa-user" active={this.state.page == "Contact Me"} handler={this.changePage} />
+                    <NavItem name="CONTACT ME" classes="fas fa-fw fa-user" active={pageName == "CONTACT ME"} handler={this.changePage} />
 
                     <hr className="sidebar-divider d-none d-md-block" />
 
@@ -116,15 +87,7 @@ class Root extends React.Component {
                 </ul>
                 <div id="content-wrapper" className="d-flex flex-column">
                     <div id="content">
-                        {(this.state.page == "Status Monitor") ? <Page pageName="Status Monitor" headers={this.statusMonitorHeaders} api="/api/statusMonitor" /> : null}
-                        {(this.state.page == "TECHS") ? <Page pageName="Techs Loaded" headers={this.techsLoadedHeaders} api="/api/techsLoaded" /> : null}
-                        {(this.state.page == "JOBS") ? <Page pageName="Jobs Loaded" headers={this.jobsLoadedHeaders} api="/api/jobsLoaded" /> : null}
-                        {(this.state.page == "REF_TABLE") ? <Page pageName="Ref Table" /> : null}
-                        {(this.state.page == "Distance Matrix") ? <Page pageName="Distance Matrix" /> : null}
-                        {(this.state.page == "Tech Assignments") ? <Page pageName="Tech Assignments" /> : null}
-                        {(this.state.page == "Report") ? <Page pageName="Report" /> : null}
-                        {(this.state.page == "Universal Config") ? <Page pageName="Universal Config" headers={this.configHeaders} api="/api/config" /> : null}
-                        {(this.state.page == "Contact Me") ? <Page pageName="Contact Me" /> : null}
+                        {page}
                     </div>
                 </div>
             </div >
