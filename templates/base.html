@@ -3,7 +3,7 @@
 
 <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <meta name="author" content="Alec Masterson">
         <meta name="description" content="DLEH Admin App">
 
@@ -31,6 +31,7 @@
         <script type="text/javascript"
                 src="{{ url_for('static', filename='js/react-table/react-bootstrap-table.min.js') }}"></script>
 
+        <script type="text/babel" src="{{ url_for('static', filename='components/navbar.js') }}"></script>
         <script type="text/babel" src="{{ url_for('static', filename='components/helpers.js') }}"></script>
         <script type="text/babel" src="{{ url_for('static', filename='components/structure.js') }}"></script>
         <script type="text/babel" src="{{ url_for('static', filename='components/statusMonitor.js') }}"></script>

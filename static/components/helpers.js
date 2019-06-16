@@ -61,23 +61,27 @@ function filterItem(props) {
 
 function refresh(props) {
     return (
-        card({
-            type: "primary",
-            size: "6",
-            header: (
-                <div className="font-weight-bold text-uppercase text-primary">LAST UPDATED</div>
-            ),
-            content: (
-                <div>
-                    <h5 className="font-weight-bold text-uppercase mb-2">{props.lastUpdated}</h5>
+        <nav className="navbar navbar-expand navbar-light bg-white topbar justify-content-between mb-4 static-top shadow">
+            <a className="navbar-brand font-weight-bold text-uppercase" style={{ cursor: "default" }}>{props.pageName}</a>
 
-                    <button className={"btn btn-primary btn-icon-split btn-lg " + (props.isLoading ? "disabled" : "")} onClick={() => props.updateTable()}>
-                        <span className="icon text-white-50"><i className="fas fa-download"></i></span>
-                        <span className="text text-white">{props.isLoading ? "Loading..." : "Refresh"}</span>
-                    </button>
-                </div>
-            )
-        })
+            <button id="sidebarToggleTop" className="btn btn-link d-md-none rounded-circle mr-3">
+                <i className="fa fa-bars"></i>
+            </button>
+
+            <form className="form-inline">
+                <span className="navbar-text mr-4">
+                    <div className="font-weight-bold text-uppercase">
+                        LAST UPDATED:
+                        <br></br>
+                        {props.lastUpdated}
+                    </div>
+                </span>
+                <button className={"btn btn-primary btn-icon-split btn-lg " + (props.isLoading ? "disabled" : "")} onClick={() => props.updateTable()}>
+                    <span className="icon text-white-50"><i className="fas fa-download"></i></span>
+                    <span className="text text-white">{props.isLoading ? "Loading..." : "Refresh"}</span>
+                </button>
+            </form>
+        </nav>
     );
 }
 
@@ -118,6 +122,40 @@ function table(props) {
     );
 }
 
+class Modal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.close = this.close.bind(this);
+        this.state = { show: true };
+    }
+
+    close() {
+        this.setState({ show: false }, () => this.props.handler());
+    }
+
+    render() {
+        const show = this.state.show;
+
+        return (
+            <div className={"modal fade " + show ? "show" : ""} style={{ display: show ? "block" : "none" }} aria-modal={show ? "true" : "false"} aria-hidden={show ? "false" : "true"}>
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">{this.props.title}</h5>
+                        </div>
+                        <div className="modal-body">
+                            {this.props.body}
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-primary" onClick={() => this.close()}>OKAY</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
 function getSectionTitle(name) {
     return <h2 className="font-weight-bold text-uppercase mt-2">{name}</h2>;
 }
@@ -130,18 +168,10 @@ function onlyShowOnBig(content) {
     return <div className="d-none d-sm-none d-md-none d-lg-block">{content}</div>;
 }
 
-function getAlerts() {
+function getAlert() {
     return (
-        <div className="mb-4">
-            <div className="alert alert-warning" role="alert">
-                WARNING: This tool is currently in development. Please use kind words when critiquing! Please contact am790d regarding any bugs found.
-            </div>
-            <div className="alert alert-danger pb-0" role="alert">
-                ALERTS:
-                <ul>
-                    <li>Columns can be sorted. I know the "sorting arrows" aren't there. I'm working on it!</li>
-                </ul>
-            </div>
+        <div className="alert alert-danger mb-4" role="alert">
+            ALERT: Columns can be sorted. I know the \"sorting arrows\" aren't there. I'm working on it!
         </div>
     );
 }

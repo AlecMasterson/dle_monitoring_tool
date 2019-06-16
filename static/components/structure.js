@@ -2,7 +2,6 @@ class Structure extends React.Component {
     constructor(props) {
         super(props);
 
-        this.updateTable = this.updateTable.bind(this);
         this.getData = this.getData.bind(this);
 
         this.state = {
@@ -10,10 +9,6 @@ class Structure extends React.Component {
             isLoading: false,
             lastUpdated: "Not Updated - Please Refresh"
         };
-    }
-
-    updateTable() {
-        this.setState({ isLoading: true }, () => this.getData());
     }
 
     async getData() {
@@ -28,27 +23,26 @@ class Structure extends React.Component {
 
     render() {
         const data = this.state.data;
+        console.log(data);
         const isLoading = this.state.isLoading;
         const lastUpdated = this.state.lastUpdated;
 
         return (
-            <div className="container-fluid">
-                <h1 className="font-weight-bold text-uppercase mt-4">{this.props.pageName}</h1>
+            <div>
+                {refresh({
+                    pageName: this.props.pageName,
+                    isLoading: isLoading,
+                    lastUpdated: lastUpdated,
+                    updateTable: (() => this.setState({ isLoading: true }, () => this.getData()))
+                })}
 
-                {getAlerts()}
+                <div className="container-fluid">
+                    {getAlert()}
 
-                {getSectionTitle("MANAGEMENT")}
-                <div className="row">
-                    {refresh({
-                        isLoading: isLoading,
-                        lastUpdated: lastUpdated,
-                        updateTable: this.updateTable
-                    })}
-                </div>
-
-                {getSectionTitle("TABLE")}
-                <div className="row">
-                    {table({ headers: this.props.headers, data: data })}
+                    {getSectionTitle("TABLE")}
+                    <div className="row">
+                        {table({ headers: this.props.headers, data: data })}
+                    </div>
                 </div>
             </div>
         );
