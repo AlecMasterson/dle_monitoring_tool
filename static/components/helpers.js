@@ -76,7 +76,7 @@ function refresh(props) {
                         {props.lastUpdated}
                     </div>
                 </span>
-                <button className={"btn btn-primary btn-icon-split btn-lg " + (props.isLoading ? "disabled" : "")} onClick={() => props.updateTable()}>
+                <button className={"btn btn-primary btn-icon-split btn-lg " + (props.isLoading ? "disabled" : "")} type="button" onClick={() => props.updateTable()}>
                     <span className="icon text-white-50"><i className="fas fa-download"></i></span>
                     <span className="text text-white">{props.isLoading ? "Loading..." : "Refresh"}</span>
                 </button>
