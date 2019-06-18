@@ -1,33 +1,79 @@
 class Root extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { modal: true, currentPage: "WELCOME" };
+        this.state = { currentPage: "WELCOME" };
     }
 
     render() {
-        const modal = this.state.modal;
         const currentPage = this.state.currentPage;
 
-        let page = <h1 className="font-weight-bold text-uppercase text-center mt-4">"{currentPage}" PAGE COMING SOON</h1>;
-        if (currentPage == "WELCOME") page = <h1 className="text-center">Welcome to the DLEH Admin App</h1>;
-        if (currentPage == "STATUS MONITOR") page = <StatusMonitor />;
-        if (currentPage == "TECHS") page = <Structure pageName={currentPage} api="/api/techsLoaded" headers={["ag", "technicianId", "geoGrp", "capacity"]} />;
-        if (currentPage == "JOBS") page = <Structure pageName={currentPage} api="/api/jobsLoaded" headers={["ag", "wrid", "jobType", "geoGrp", "estTechDur"]} />;
-        if (currentPage == "UNIVERSAL CONFIG") page = <Structure pageName={currentPage} api="/api/config" headers={["ag", "agRouting", "actual_time", "overtime", "durations"]} />;
+        let page = <h1 className="font-weight-bold text-uppercase text-center mt-4 mx-4">"{currentPage}" PAGE COMING SOON</h1>;
+        if (currentPage == "WELCOME") page = <h1 className="font-weight-bold text-uppercase text-center mt-4 mx-4">Welcome to the DLEH Admin App</h1>;
+        if (currentPage == "STATUS MONITOR") page = <Page pageName="STATUS MONITOR" type={StatusMonitor} />;
 
         return (
             <div id="wrapper">
-                {modal ? null : <NavBar currentPage={currentPage} changePage={(newPage) => this.setState({ currentPage: newPage })} />}
+                <NavBar currentPage={currentPage} changePage={(newPage) => this.setState({ currentPage: newPage })} />
 
                 <div id="content-wrapper" className="d-flex flex-column">
                     <div id="content" style={{ display: "grid", height: "100%" }}>
-                        <div style={{ margin: "auto" }}>
-                            <Modal handler={() => this.setState({ modal: false })} title="WARNING" body={
-                                "This tool is currently in development. Please use kind words when critiquing! Please contact am790d regarding any bugs found."
-                            } />
-                        </div>
-                        {modal ? null : page}
+                        {page}
                     </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+class Page extends React.Component {
+    constructor(props) {
+        super(props);
+        this.pageContent = React.createRef();
+
+        this.updatePage = this.updatePage.bind(this);
+        this.state = { loading: false, lastUpdated: "Not Updated - Please Refresh" };
+    }
+
+    async updatePage() {
+        await this.pageContent.current.update();
+        this.setState({ loading: false, lastUpdated: new Date().toLocaleString() });
+    }
+
+    render() {
+        const loading = this.state.loading;
+        const lastUpdated = this.state.lastUpdated;
+
+        return (
+            <div>
+                <nav className="navbar navbar-expand navbar-light bg-white shadow justify-content-between mb-4">
+                    <a className="navbar-brand font-weight-bold text-uppercase" style={{ cursor: "default" }}>{this.props.pageName}</a>
+
+                    {onlyShowOnBig(
+                        <form className="form-inline">
+                            <span className="navbar-text mr-4">
+                                <div className="font-weight-bold text-uppercase">
+                                    {"LAST UPDATED: "}
+                                    <br></br>
+                                    {lastUpdated}
+                                </div>
+                            </span>
+                            <button type="button" className={"btn btn-primary btn-icon-split btn-lg " + (loading ? "disabled" : "")} onClick={() => (!loading) ? this.setState({ loading: true }, this.updatePage) : null}>
+                                <span className="icon text-white-50"><i className="fas fa-download"></i></span>
+                                <span className="text text-white">{loading ? "Loading..." : "Refresh"}</span>
+                            </button>
+                        </form>
+                    )}
+                </nav>
+
+                <div className="container-fluid">
+                    {onlyShowOnBig(
+                        React.createElement(this.props.type, { props: null, ref: this.pageContent })
+                    )}
+                    {onlyShowOnSmall(
+                        <h2 className="font-weight-bold text-uppercase text-center mt-2">
+                            {"Use a Larger Screen to View"}
+                        </h2>
+                    )}
                 </div>
             </div>
         );

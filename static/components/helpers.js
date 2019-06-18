@@ -168,10 +168,10 @@ function onlyShowOnBig(content) {
     return <div className="d-none d-sm-none d-md-none d-lg-block">{content}</div>;
 }
 
-function getAlert() {
+function getAlert(alert) {
     return (
         <div className="alert alert-danger mb-4" role="alert">
-            ALERT: Columns can be sorted. I know the \"sorting arrows\" aren't there. I'm working on it!
+            {alert}
         </div>
     );
 }
