@@ -2,204 +2,244 @@ class StatusMonitor extends React.Component {
     constructor(props) {
         super(props);
 
-        this.headers = ["ag", "service", "run", "start", "end", "status"];
-
         this.update = this.update.bind(this);
-        this.changeAGFilter = this.changeAGFilter.bind(this);
-        this.filterData = this.filterData.bind(this);
 
+        const defaultCounts = { "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" };
         this.state = {
-            modal: true,
+            sidebar: true,
 
-            data: null,
-            notStarted: "N/A",
-            numDone: "N/A",
-            averageRuntime: "N/A",
-            averageBulkTechPerc: "COMING SOON",
-            averageBulkJobPerc: "COMING SOON",
-            totalAgs: "N/A",
+            autoUpdate: false,
+            loading: false,
+            lastUpdated: "Not Updated - Please Refresh",
+
             serviceCounts: {
-                "ALL": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "LOADDATA": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "SAMELOCATION": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "DISTANCEMATRIX": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "OPTAPLANNER": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "ASSIGN": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
-                "CHECKLOG": { "count": "N/A", "statuses": { "ALL": "N/A", "IN PROGRESS": "N/A", "DONE": "N/A", "ERROR": "N/A" } },
+                "LOADDATA": defaultCounts, "SAMELOCATION": defaultCounts,
+                "DISTANCEMATRIX": defaultCounts, "OPTAPLANNER": defaultCounts,
+                "ASSIGN": defaultCounts, "CHECKLOG": defaultCounts,
             },
 
-            filteredData: null,
-            filterService: "ALL",
-            filterStatus: "ALL",
-            filterAG: []
+            data: [],
+            notStarted: [],
+            completed: [],
+            agErrors: [],
+            clocklineErrors: [],
+            assignmentErrors: []
         };
     }
 
-    changeAGFilter(filter) {
-        let temp = filter.target.value.split(",");
-        if (temp.length == 1 && temp[0] == "") temp = [];
-        this.setState({ filterAG: temp }, () => this.filterData());
+    componentDidMount() {
+        this.refreshTimer = setInterval(
+            () => (this.state.autoUpdate && !this.state.loading) ? this.setState({ loading: true }, () => this.update()) : null, 45000
+        );
     }
 
-    filterData() {
-        if (this.state.data == null) return;
-
-        let temp = this.state.data.filter((item) =>
-            (this.state.filterService == "ALL") || (item["service"].toUpperCase() == this.state.filterService)
-        );
-        temp = temp.filter((item) =>
-            (this.state.filterStatus == "ALL") || (item["status"].toUpperCase() == this.state.filterStatus)
-        );
-        if (this.state.filterAG.length != 0) {
-            temp = temp.filter((item) =>
-                (this.state.filterAG.indexOf(item["ag"]) != -1)
-            );
-        }
-        this.setState({ filteredData: temp });
+    componentWillUnmount() {
+        clearInterval(this.refreshTimer);
     }
 
     async update() {
         const response = await fetch("/api/statusMonitor");
         const responseData = await response.json();
         this.setState({
+            loading: false,
+            lastUpdated: new Date().toLocaleString(),
+
+            serviceCounts: responseData["serviceCounts"],
+
             data: JSON.parse(responseData["data"]),
             notStarted: responseData["notStarted"],
-            numDone: responseData["numDone"],
-            averageRuntime: responseData["averageRuntime"],
-            averageBulkTechPerc: responseData["averageBulkTechPerc"],
-            averageBulkJobPerc: responseData["averageBulkJobPerc"],
-            totalAgs: responseData["totalAgs"],
-            serviceCounts: responseData["serviceCounts"]
-        }, () => this.filterData());
+            completed: responseData["completed"],
+            agErrors: responseData["agErrors"],
+            clocklineErrors: responseData["clocklineErrors"],
+            assignmentErrors: responseData["assignmentErrors"]
+        });
     }
 
     render() {
-        const modal = this.state.modal;
+        const sidebar = this.state.sidebar;
 
-        const filteredData = this.state.filteredData;
-        const notStarted = this.state.notStarted;
-        const numDone = this.state.numDone;
-        const averageRuntime = this.state.averageRuntime;
-        const averageBulkTechPerc = this.state.averageBulkTechPerc;
-        const averageBulkJobPerc = this.state.averageBulkJobPerc;
-        const totalAgs = this.state.totalAgs;
+        const autoUpdate = this.state.autoUpdate;
+        const loading = this.state.loading;
+        const lastUpdated = this.state.lastUpdated;
+
         const serviceCounts = this.state.serviceCounts;
 
-        const filterService = this.state.filterService;
-        const filterStatus = this.state.filterStatus;
+        const data = this.state.data;
+        const notStarted = this.state.notStarted;
+        const completed = this.state.completed;
+        const agErrors = this.state.agErrors;
+        const clocklineErrors = this.state.clocklineErrors;
+        const assignmentErrors = this.state.assignmentErrors;
 
-        const progress = (numDone == "N/A" || totalAgs == "N/A" ? 0 : Math.round(numDone / totalAgs * 100));
+        /*
+        {startModal ? <Modal handler={() => this.setState({ startModal: false })} title="MONITOR ALERT" body={
+                            "This is a tool is to be used by the on-call team between midnight and 5AM CT. If this tool is used outside those hours or by anyone not qualified, the data may be incorrect and/or confusing."
+                        } /> : null}
+        */
 
         return (
-            <div>
-                <Modal handler={() => this.setState({ modal: false })} title="STATUS MONITOR ALERT" body={
-                    "This is a tool is to be used by the on-call team between midnight and 5AM CT. If this tool is used outside those hours or by anyone not qualified, the data may be incorrect and/or confusing."
-                } />
+            <div id="wrapper" className={"d-flex " + (sidebar ? "" : "toggled")}>
+                <div id="sidebar-wrapper">
+                    <div className="list-group list-group-flush" style={{ borderBottom: "1px solid #6A707A" }}>
 
-                {modal ? null :
-                    <div>
-                        {getAlert("Columns can be sorted. I know the 'sorting arrows' aren't there. I'm working on it!")}
-
-                        {getSectionTitle("STATISTICS")}
-                        <div className="row">
-                            {infoCard({
-                                type: "success",
-                                title: "MONEY SAVED",
-                                value: "$ PRICELESS"
-                            })}
-                            {infoCard({
-                                type: "info",
-                                title: "PROGRESS : " + numDone + " OF " + totalAgs,
-                                value: progress + "%",
-                                extra: (
-                                    <div className="progress">
-                                        <div
-                                            className="progress-bar bg-info"
-                                            role="progressbar"
-                                            style={{ width: progress + "%" }}
-                                            aria-valuemin="0"
-                                            aria-valuenow={progress}
-                                            aria-valuemax="100">
+                        {Modal({
+                            title: "Settings", body: (
+                                <div className="container">
+                                    <form>
+                                        <span className="font-weight-bold text-uppercase">{"LAST UPDATED:"}<br />{lastUpdated}</span>
+                                        <div className="custom-control custom-switch">
+                                            <input id="autoRefreshCheckbox" type="checkbox" className="custom-control-input" onClick={() => this.setState({ autoUpdate: !autoUpdate })} />
+                                            <label className="custom-control-label" htmlFor="autoRefreshCheckbox">Auto Refresh</label>
                                         </div>
-                                    </div>
-                                )
-                            })}
-                            {infoCard({
-                                type: "danger",
-                                title: "NUMBER OF ERRORS",
-                                value: serviceCounts["ALL"]["statuses"]["ERROR"]
-                            })}
-                            {infoCard({
-                                type: "danger",
-                                title: "FAILED ASSIGNMENTS",
-                                value: "COMING SOON"
-                            })}
-                            {infoCard({
-                                type: "info",
-                                title: "AVERAGE RUNTIME",
-                                value: averageRuntime + " MINUTES"
-                            })}
-                            {infoCard({
-                                type: "info",
-                                title: "AVERAGE TECH BULK %",
-                                value: averageBulkTechPerc
-                            })}
-                            {infoCard({
-                                type: "info",
-                                title: "AVERAGE JOB BULK %",
-                                value: averageBulkJobPerc
-                            })}
+                                        <button type="button" className={"btn btn-secondary " + (loading ? "disabled" : "")} style={{ cursor: (loading ? "default" : "pointer") }} onClick={() => (!loading) ? this.setState({ loading: true }, this.setState({ loading: true }, () => this.update())) : null}>
+                                            <span className="icon text-white-50 mr-1"><i className="fas fa-download"></i></span>
+                                            <span className="text text-white mr-1">{loading ? "Loading..." : "Refresh"}</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            )
+                        })}
+                        <div className="sidebar-heading d-flex align-items-center justify-content-between list-group-item font-weight-bold text-white text-uppercase py-3">
+                            <span>{"OVERVIEW"}</span>
+                            <button type="button" className="btn btn-secondary" data-toggle="modal" data-target="#SettingsModal">
+                                <span className="icon text-white-50"><i className="fas fa-cog"></i></span>
+                            </button>
                         </div>
 
-                        {onlyShowOnBig(
-                            <div>
-                                {getSectionTitle("FILTERS")}
-                                <div className="row">
-                                    {filterCard({
-                                        filterName: "SERVICE FILTER", filters: [
-                                            { name: "ALL", active: (filterService == "ALL"), count: serviceCounts["ALL"]["count"], clickHandler: (() => this.setState({ filterService: "ALL" }, () => this.filterData())) },
-                                            { name: "LOADDATA", active: (filterService == "LOADDATA"), count: serviceCounts["LOADDATA"]["count"], clickHandler: (() => this.setState({ filterService: "LOADDATA" }, () => this.filterData())) },
-                                            { name: "SAMELOCATION", active: (filterService == "SAMELOCATION"), count: serviceCounts["SAMELOCATION"]["count"], clickHandler: (() => this.setState({ filterService: "SAMELOCATION" }, () => this.filterData())) },
-                                            { name: "DISTANCEMATRIX", active: (filterService == "DISTANCEMATRIX"), count: serviceCounts["DISTANCEMATRIX"]["count"], clickHandler: (() => this.setState({ filterService: "DISTANCEMATRIX" }, () => this.filterData())) },
-                                            { name: "OPTAPLANNER", active: (filterService == "OPTAPLANNER"), count: serviceCounts["OPTAPLANNER"]["count"], clickHandler: (() => this.setState({ filterService: "OPTAPLANNER" }, () => this.filterData())) },
-                                            { name: "ASSIGN", active: (filterService == "ASSIGN"), count: serviceCounts["ASSIGN"]["count"], clickHandler: (() => this.setState({ filterService: "ASSIGN" }, () => this.filterData())) },
-                                            { name: "CHECKLOG", active: (filterService == "CHECKLOG"), count: serviceCounts["CHECKLOG"]["count"], clickHandler: (() => this.setState({ filterService: "CHECKLOG" }, () => this.filterData())) }
-                                        ]
-                                    })}
-                                    {filterCard({
-                                        filterName: "STATUS FILTER", filters: [
-                                            { name: "ALL", active: (filterStatus == "ALL"), count: serviceCounts[filterService]["statuses"]["ALL"], clickHandler: (() => this.setState({ filterStatus: "ALL" }, () => this.filterData())) },
-                                            { name: "IN PROGRESS", active: (filterStatus == "IN PROGRESS"), count: serviceCounts[filterService]["statuses"]["IN PROGRESS"], clickHandler: (() => this.setState({ filterStatus: "IN PROGRESS" }, () => this.filterData())) },
-                                            { name: "DONE", active: (filterStatus == "DONE"), count: serviceCounts[filterService]["statuses"]["DONE"], clickHandler: (() => this.setState({ filterStatus: "DONE" }, () => this.filterData())) },
-                                            { name: "ERROR", active: (filterStatus == "ERROR"), count: serviceCounts[filterService]["statuses"]["ERROR"], clickHandler: (() => this.setState({ filterStatus: "ERROR" }, () => this.filterData())) }
-                                        ]
-                                    })}
-                                </div>
-                                <div className="row">
-                                    {card({
-                                        type: "primary",
-                                        size: "6",
-                                        header: (
-                                            <div className="font-weight-bold text-uppercase text-primary">AG FILTER</div>
-                                        ),
-                                        content: (
-                                            <div className="form-group mb-0">
-                                                <input type="text" className="form-control" aria-describedby="agFilterHelp" placeholder="AG NAME" onChange={this.changeAGFilter} />
-                                                <small id="agFilterHelp" className="form-text text-muted">A Comma Separated List is Allowed</small>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        )}
+                        {SidebarItem({
+                            title: "Not Started", value: (notStarted.length + " of 282"), body: (
+                                <DataTable headers={[{ name: "ag" }]} data={notStarted} />
+                            )
+                        })}
+                        {SidebarItem({
+                            title: "Completed", value: (completed.length + " of 282"), extraClasses: "sidebar-item-border-top", body: (
+                                <DataTable headers={[{ name: "ag" }]} data={completed} />
+                            )
+                        })}
+                        {SidebarItem({
+                            title: "AG Errors", value: agErrors.length, extraClasses: "sidebar-item-border-top", body: (
+                                <DataTable headers={[{ name: "ag" }, { name: "service" }, { name: "run" }]} data={agErrors} />
+                            )
+                        })}
+                        {SidebarItem({
+                            title: "ClockLine Errors", value: clocklineErrors.length, extraClasses: "sidebar-item-border-top", body: (
+                                <DataTable headers={[{ name: "clockline" }, { name: "run" }]} data={clocklineErrors} />
+                            )
+                        })}
+                        {SidebarItem({
+                            title: "Assignment Errors", value: assignmentErrors.length, extraClasses: "sidebar-item-border-top", body: (
+                                <DataTable headers={[{ name: "ag" }, { name: "perc_failed" }]} data={assignmentErrors} />
+                            )
+                        })}
 
-                        {getSectionTitle("TABLE")}
+                        <div className="sidebar-heading list-group-item font-weight-bold text-white text-uppercase py-3">
+                            <span>{"HELP"}</span>
+                        </div>
+
+                        {SidebarItem({
+                            title: "Universal Config", body: (
+                                <h4>{"Coming Soon"}</h4>
+                            )
+                        })}
+                        {SidebarItem({
+                            title: "Error - What Now", extraClasses: "sidebar-item-border-top", body: (
+                                <h4>{"Coming Soon"}</h4>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                <div id="page-content-wrapper">
+                    <button className="btn btn-outline-dark" style={{ borderRadius: "0px" }} onClick={() => this.setState({ sidebar: !sidebar })}>
+                        <span className="icon"><i className={"fas fa-arrow-" + (sidebar ? "left" : "right")}></i></span>
+                    </button>
+
+                    <div className="container-fluid col-10 mt-4">
                         <div className="row">
-                            {table({ headers: this.headers, data: filteredData })}
+                            <div className="d-none d-sm-none d-md-none d-lg-block col-12">
+                                <h3 className="font-weight-bold text-uppercase">{"Main Table"}</h3>
+                                <DataTable headers={[
+                                    { name: "ag", filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "service", filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "run", filter: { type: "NumberFilter", delay: 500 } },
+                                    { name: "start", filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "end", filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "status", filter: { type: "TextFilter", delay: 500 } }
+                                ]} data={data} />
+                            </div>
+                            <div className="d-none d-block d-sm-block d-md-block d-lg-none text-center col-12">
+                                <h2 className="font-weight-bold text-uppercase">
+                                    {"Use a Larger Screen to View the Table"}
+                                </h2>
+                            </div>
                         </div>
                     </div>
-                }
+                </div>
             </div>
         );
     }
+}
+
+class DataTable extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        let columns = [];
+        for (const [index, item] of this.props.headers.entries()) {
+            columns.push(
+                <TableHeaderColumn
+                    isKey={index == 0} key={item.name}
+                    headerAlign="center" dataAlign="center"
+                    dataField={item.name} dataSort={true}
+                    filter={item.filter == null ? null : item.filter}
+                >
+                    {item.name}
+                </TableHeaderColumn>);
+        }
+        return (
+            <BootstrapTable data={this.props.data} striped hover pagination version="4">
+                {columns}
+            </BootstrapTable>
+        );
+    }
+}
+
+function Modal(props) {
+    return (
+        <div id={props.title.split(" ").join("") + "Modal"} className="modal fade">
+            <div className="modal-md modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h4 className="modal-title font-weight-bold text-uppercase">{props.title}</h4>
+                    </div>
+
+                    <div className="modal-body">
+                        {props.body}
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn btn-primary font-weight-bold text-uppercase" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function SidebarItem(props) {
+    return (
+        <div>
+            {Modal({ title: props.title, body: props.body })}
+            <div
+                className={"sidebar-item list-group-item list-group-item-action text-white text-uppercase py-4 " + props.extraClasses}
+                data-toggle="modal"
+                data-target={"#" + props.title.split(" ").join("") + "Modal"}
+            >
+                <span className="font-weight-bold">{props.title + (props.value == null ? "" : ": ")}</span>
+                {props.value == null ? null : <small>{props.value}</small>}
+            </div>
+        </div>
+    );
 }
