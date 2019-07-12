@@ -71,6 +71,31 @@ class StatusMonitor extends React.Component {
         const clocklineErrors = this.state.clocklineErrors;
         const assignmentErrors = this.state.assignmentErrors;
 
+        const progress = [
+            {
+                "TYPE": "IN PROGRESS",
+                "LOADDATA": serviceCounts["LOADDATA"]["IN PROGRESS"],
+                "DISTANCEMATRIX": serviceCounts["DISTANCEMATRIX"]["IN PROGRESS"],
+                "OPTAPLANNER": serviceCounts["OPTAPLANNER"]["IN PROGRESS"],
+                "ASSIGN": serviceCounts["ASSIGN"]["IN PROGRESS"],
+                "CHECKLOG": serviceCounts["CHECKLOG"]["IN PROGRESS"]
+            }, {
+                "TYPE": "DONE",
+                "LOADDATA": serviceCounts["LOADDATA"]["DONE"],
+                "DISTANCEMATRIX": serviceCounts["DISTANCEMATRIX"]["DONE"],
+                "OPTAPLANNER": serviceCounts["OPTAPLANNER"]["DONE"],
+                "ASSIGN": serviceCounts["ASSIGN"]["DONE"],
+                "CHECKLOG": serviceCounts["CHECKLOG"]["DONE"]
+            }, {
+                "TYPE": "ERROR",
+                "LOADDATA": serviceCounts["LOADDATA"]["ERROR"],
+                "DISTANCEMATRIX": serviceCounts["DISTANCEMATRIX"]["ERROR"],
+                "OPTAPLANNER": serviceCounts["OPTAPLANNER"]["ERROR"],
+                "ASSIGN": serviceCounts["ASSIGN"]["ERROR"],
+                "CHECKLOG": serviceCounts["CHECKLOG"]["ERROR"]
+            }
+        ];
+
         /*
         {startModal ? <Modal handler={() => this.setState({ startModal: false })} title="MONITOR ALERT" body={
                             "This is a tool is to be used by the on-call team between midnight and 5AM CT. If this tool is used outside those hours or by anyone not qualified, the data may be incorrect and/or confusing."
@@ -81,20 +106,28 @@ class StatusMonitor extends React.Component {
             <div id="wrapper" className={"d-flex " + (sidebar ? "" : "toggled")}>
                 <div id="sidebar-wrapper">
                     <div className="list-group list-group-flush" style={{ borderBottom: "1px solid #6A707A" }}>
-
                         {Modal({
                             title: "Settings", body: (
                                 <div className="container">
+                                    <div className="row mb-4 alert alert-danger">
+                                        <span>I know the "styling" of this popup isn't great. I'm sorry...</span>
+                                    </div>
                                     <form>
-                                        <span className="font-weight-bold text-uppercase">{"LAST UPDATED:"}<br />{lastUpdated}</span>
-                                        <div className="custom-control custom-switch">
-                                            <input id="autoRefreshCheckbox" type="checkbox" className="custom-control-input" onClick={() => this.setState({ autoUpdate: !autoUpdate })} />
-                                            <label className="custom-control-label" htmlFor="autoRefreshCheckbox">Auto Refresh</label>
+                                        <div className="row">
+                                            <span className="font-weight-bold text-uppercase">{"LAST UPDATED:"}<br />{lastUpdated}</span>
                                         </div>
-                                        <button type="button" className={"btn btn-secondary " + (loading ? "disabled" : "")} style={{ cursor: (loading ? "default" : "pointer") }} onClick={() => (!loading) ? this.setState({ loading: true }, this.setState({ loading: true }, () => this.update())) : null}>
-                                            <span className="icon text-white-50 mr-1"><i className="fas fa-download"></i></span>
-                                            <span className="text text-white mr-1">{loading ? "Loading..." : "Refresh"}</span>
-                                        </button>
+                                        <div className="row my-2">
+                                            <div className="custom-control custom-switch">
+                                                <input id="autoRefreshCheckbox" type="checkbox" className="custom-control-input" onClick={() => this.setState({ autoUpdate: !autoUpdate })} />
+                                                <label className="custom-control-label" htmlFor="autoRefreshCheckbox">Auto Refresh</label>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <button type="button" className={"btn btn-secondary " + (loading ? "disabled" : "")} style={{ cursor: (loading ? "default" : "pointer") }} onClick={() => (!loading) ? this.setState({ loading: true }, this.setState({ loading: true }, () => this.update())) : null}>
+                                                <span className="icon text-white-50 mr-1"><i className="fas fa-download"></i></span>
+                                                <span className="text text-white mr-1">{loading ? "Loading..." : "Refresh"}</span>
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             )
@@ -108,27 +141,27 @@ class StatusMonitor extends React.Component {
 
                         {SidebarItem({
                             title: "Not Started", value: (notStarted.length + " of 282"), body: (
-                                <DataTable headers={[{ name: "ag" }]} data={notStarted} />
+                                <DataTable headers={[{ name: "ag" }]} data={notStarted} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "Completed", value: (completed.length + " of 282"), extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }]} data={completed} />
+                                <DataTable headers={[{ name: "ag" }]} data={completed} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "AG Errors", value: agErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }, { name: "service" }, { name: "run" }]} data={agErrors} />
+                                <DataTable headers={[{ name: "ag" }, { name: "service" }, { name: "run" }]} data={agErrors} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "ClockLine Errors", value: clocklineErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "clockline" }, { name: "run" }]} data={clocklineErrors} />
+                                <DataTable headers={[{ name: "clockline" }, { name: "run" }]} data={clocklineErrors} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "Assignment Errors", value: assignmentErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }, { name: "perc_failed" }]} data={assignmentErrors} />
+                                <DataTable headers={[{ name: "ag" }, { name: "perc_failed" }]} data={assignmentErrors} pagination={true} />
                             )
                         })}
 
@@ -157,7 +190,17 @@ class StatusMonitor extends React.Component {
                     <div className="container-fluid col-10 mt-4">
                         <div className="row">
                             <div className="d-none d-sm-none d-md-none d-lg-block col-12">
-                                <h3 className="font-weight-bold text-uppercase">{"Main Table"}</h3>
+                                <h3 className="font-weight-bold text-uppercase">{"Progress Chart"}</h3>
+                                <DataTable headers={[
+                                    { name: "TYPE" },
+                                    { name: "LOADDATA" },
+                                    { name: "DISTANCEMATRIX" },
+                                    { name: "OPTAPLANNER" },
+                                    { name: "ASSIGN" },
+                                    { name: "CHECKLOG" }
+                                ]} data={progress} pagination={false} />
+
+                                <h3 className="font-weight-bold text-uppercase mt-4">{"Main Table"}</h3>
                                 <DataTable headers={[
                                     { name: "ag", filter: { type: "TextFilter", delay: 500 } },
                                     { name: "service", filter: { type: "TextFilter", delay: 500 } },
@@ -165,7 +208,7 @@ class StatusMonitor extends React.Component {
                                     { name: "start", filter: { type: "TextFilter", delay: 500 } },
                                     { name: "end", filter: { type: "TextFilter", delay: 500 } },
                                     { name: "status", filter: { type: "TextFilter", delay: 500 } }
-                                ]} data={data} />
+                                ]} data={data} pagination={true} />
                             </div>
                             <div className="d-none d-block d-sm-block d-md-block d-lg-none text-center col-12">
                                 <h2 className="font-weight-bold text-uppercase">
@@ -190,6 +233,7 @@ class DataTable extends React.Component {
         for (const [index, item] of this.props.headers.entries()) {
             columns.push(
                 <TableHeaderColumn
+                    className="text-uppercase"
                     isKey={index == 0} key={item.name}
                     headerAlign="center" dataAlign="center"
                     dataField={item.name} dataSort={true}
@@ -199,7 +243,7 @@ class DataTable extends React.Component {
                 </TableHeaderColumn>);
         }
         return (
-            <BootstrapTable data={this.props.data} striped hover pagination version="4">
+            <BootstrapTable data={this.props.data} striped hover pagination={this.props.pagination} version="4">
                 {columns}
             </BootstrapTable>
         );
