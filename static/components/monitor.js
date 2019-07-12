@@ -93,6 +93,13 @@ class StatusMonitor extends React.Component {
                 "OPTAPLANNER": serviceCounts["OPTAPLANNER"]["ERROR"],
                 "ASSIGN": serviceCounts["ASSIGN"]["ERROR"],
                 "CHECKLOG": serviceCounts["CHECKLOG"]["ERROR"]
+            }, {
+                "TYPE": "TOTAL",
+                "LOADDATA": serviceCounts["LOADDATA"]["IN PROGRESS"] + serviceCounts["LOADDATA"]["DONE"] + serviceCounts["LOADDATA"]["ERROR"],
+                "DISTANCEMATRIX": serviceCounts["DISTANCEMATRIX"]["IN PROGRESS"] + serviceCounts["DISTANCEMATRIX"]["DONE"] + serviceCounts["DISTANCEMATRIX"]["ERROR"],
+                "OPTAPLANNER": serviceCounts["OPTAPLANNER"]["IN PROGRESS"] + serviceCounts["OPTAPLANNER"]["DONE"] + serviceCounts["OPTAPLANNER"]["ERROR"],
+                "ASSIGN": serviceCounts["ASSIGN"]["IN PROGRESS"] + serviceCounts["ASSIGN"]["DONE"] + serviceCounts["ASSIGN"]["ERROR"],
+                "CHECKLOG": serviceCounts["CHECKLOG"]["IN PROGRESS"] + serviceCounts["CHECKLOG"]["DONE"] + serviceCounts["CHECKLOG"]["ERROR"]
             }
         ];
 
@@ -141,12 +148,12 @@ class StatusMonitor extends React.Component {
 
                         {SidebarItem({
                             title: "Not Started", value: (notStarted.length + " of 282"), body: (
-                                <DataTable headers={[{ name: "ag" }]} data={notStarted} pagination={true} />
+                                <DataTable headers={[{ name: "ag", sort: true }]} data={notStarted} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "Completed", value: (completed.length + " of 282"), extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }]} data={completed} pagination={true} />
+                                <DataTable headers={[{ name: "ag", sort: true }]} data={completed} pagination={true} />
                             )
                         })}
 
@@ -156,17 +163,17 @@ class StatusMonitor extends React.Component {
 
                         {SidebarItem({
                             title: "AG Errors", value: agErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }, { name: "service" }, { name: "run" }]} data={agErrors} pagination={true} />
+                                <DataTable headers={[{ name: "ag", sort: true }, { name: "service", sort: true }, { name: "run", sort: true }]} data={agErrors} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "ClockLine Errors", value: clocklineErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "clockline" }, { name: "run" }]} data={clocklineErrors} pagination={true} />
+                                <DataTable headers={[{ name: "clockline", sort: true }, { name: "run", sort: true }]} data={clocklineErrors} pagination={true} />
                             )
                         })}
                         {SidebarItem({
                             title: "Assignment Errors", value: assignmentErrors.length, extraClasses: "sidebar-item-border-top", body: (
-                                <DataTable headers={[{ name: "ag" }, { name: "perc_failed" }]} data={assignmentErrors} pagination={true} />
+                                <DataTable headers={[{ name: "ag", sort: true }, { name: "perc_failed", sort: true }]} data={assignmentErrors} pagination={true} />
                             )
                         })}
 
@@ -202,22 +209,22 @@ class StatusMonitor extends React.Component {
                             <div className="d-none d-sm-none d-md-none d-lg-block col-12">
                                 <h3 className="font-weight-bold text-uppercase">{"Progress Chart"}</h3>
                                 <DataTable headers={[
-                                    { name: "TYPE" },
-                                    { name: "LOADDATA" },
-                                    { name: "DISTANCEMATRIX" },
-                                    { name: "OPTAPLANNER" },
-                                    { name: "ASSIGN" },
-                                    { name: "CHECKLOG" }
+                                    { name: "TYPE", sort: false },
+                                    { name: "LOADDATA", sort: false },
+                                    { name: "DISTANCEMATRIX", sort: false },
+                                    { name: "OPTAPLANNER", sort: false },
+                                    { name: "ASSIGN", sort: false },
+                                    { name: "CHECKLOG", sort: false }
                                 ]} data={progress} pagination={false} />
 
                                 <h3 className="font-weight-bold text-uppercase mt-4">{"Main Table"}</h3>
                                 <DataTable headers={[
-                                    { name: "ag", filter: { type: "TextFilter", delay: 500 } },
-                                    { name: "service", filter: { type: "TextFilter", delay: 500 } },
-                                    { name: "run", filter: { type: "NumberFilter", delay: 500 } },
-                                    { name: "start", filter: { type: "TextFilter", delay: 500 } },
-                                    { name: "end", filter: { type: "TextFilter", delay: 500 } },
-                                    { name: "status", filter: { type: "TextFilter", delay: 500 } }
+                                    { name: "ag", sort: true, filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "service", sort: true, filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "run", sort: true, filter: { type: "NumberFilter", delay: 500 } },
+                                    { name: "start", sort: true, filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "end", sort: true, filter: { type: "TextFilter", delay: 500 } },
+                                    { name: "status", sort: true, filter: { type: "TextFilter", delay: 500 } }
                                 ]} data={data} pagination={true} />
                             </div>
                             <div className="d-none d-block d-sm-block d-md-block d-lg-none text-center col-12">
@@ -246,7 +253,7 @@ class DataTable extends React.Component {
                     className="text-uppercase"
                     isKey={index == 0} key={item.name}
                     headerAlign="center" dataAlign="center"
-                    dataField={item.name} dataSort={true}
+                    dataField={item.name} dataSort={item.sort}
                     filter={item.filter == null ? null : item.filter}
                 >
                     {item.name}
