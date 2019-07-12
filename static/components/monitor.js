@@ -149,6 +149,11 @@ class StatusMonitor extends React.Component {
                                 <DataTable headers={[{ name: "ag" }]} data={completed} pagination={true} />
                             )
                         })}
+
+                        <div className="sidebar-heading list-group-item font-weight-bold text-white text-uppercase py-3">
+                            <span>{"ERROR WATCH"}</span>
+                        </div>
+
                         {SidebarItem({
                             title: "AG Errors", value: agErrors.length, extraClasses: "sidebar-item-border-top", body: (
                                 <DataTable headers={[{ name: "ag" }, { name: "service" }, { name: "run" }]} data={agErrors} pagination={true} />
@@ -179,6 +184,11 @@ class StatusMonitor extends React.Component {
                                 <h4>{"Coming Soon"}</h4>
                             )
                         })}
+                        {SidebarItem({
+                            title: "Who to Contact", extraClasses: "sidebar-item-border-top", body: (
+                                <h4>{"Coming Soon"}</h4>
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -187,7 +197,7 @@ class StatusMonitor extends React.Component {
                         <span className="icon"><i className={"fas fa-arrow-" + (sidebar ? "left" : "right")}></i></span>
                     </button>
 
-                    <div className="container-fluid col-10 mt-4">
+                    <div className="container-fluid col-10 my-4">
                         <div className="row">
                             <div className="d-none d-sm-none d-md-none d-lg-block col-12">
                                 <h3 className="font-weight-bold text-uppercase">{"Progress Chart"}</h3>
@@ -255,16 +265,12 @@ function Modal(props) {
         <div id={props.title.split(" ").join("") + "Modal"} className="modal fade">
             <div className="modal-md modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div className="modal-content">
-                    <div className="modal-header">
+                    <div className="modal-header py-3">
                         <h4 className="modal-title font-weight-bold text-uppercase">{props.title}</h4>
                     </div>
 
                     <div className="modal-body">
                         {props.body}
-                    </div>
-
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-primary font-weight-bold text-uppercase" data-dismiss="modal">CLOSE</button>
                     </div>
                 </div>
             </div>
