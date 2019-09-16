@@ -62,7 +62,7 @@ class OverviewItem extends React.Component {
                         {this.props.name + ": " + this.props.value}
                     </h3>
                     <span
-                        className="icon"
+                        className="icon d-none d-sm-block"
                         data-toggle="collapse"
                         data-target={"#" + this.props.name.split(" ").join("")}
                         onClick={() => this.setState({ collapsed: !collapsed })}
@@ -71,7 +71,7 @@ class OverviewItem extends React.Component {
                     </span>
                 </li>
                 <div id={this.props.name.split(" ").join("")} className="collapse">
-                    <div className="card px-2 py-2">
+                    <div className="card px-2 py-2 d-none d-sm-block">
                         <DataTable headers={this.props.headers} data={this.props.data} />
                     </div>
                 </div>

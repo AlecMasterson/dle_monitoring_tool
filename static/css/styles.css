@@ -16,3 +16,9 @@ nav {
   opacity: 0.4;
   pointer-events: none;
 }
+
+@media only screen and (max-width: 420px) {
+  .container-fluid {
+    display: none;
+  }
+}
