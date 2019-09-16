@@ -3,7 +3,8 @@ import argparse
 import pandas
 import json
 import time
-
+import os
+import datetime
 
 def create_app():
     app = Flask(__name__)
@@ -15,16 +16,23 @@ def create_app():
     @app.route('/api/overview/')
     def apiStatusMonitor():
 
-        pending = pandas.DataFrame()
-        inProgress = pandas.DataFrame()
-        completed = pandas.DataFrame()
-        didNotStart = pandas.DataFrame()
-        dleError = pandas.DataFrame()
-        noAssignments = pandas.DataFrame()
+        baseDirectory = '/opt/app/dle/files/MONITOR/{}/'.format(datetime.datetime.now().strftime('%Y-%m-%d'))
+        currentDir = max([os.path.join(baseDirectory, d) for d in os.listdir(baseDirectory)], key=os.path.getmtime)
+        latestDir = currentDir.split('/')[-1]
+
+        timestamp = latestDir[:-2] + ':' + latestDir[-2:]
+
+        pending = pandas.read_csv(os.path.join(currentDir, 'pending.csv'))
+        inProgress = pandas.read_csv(os.path.join(currentDir, 'inProgress.csv'))
+        completed = pandas.read_csv(os.path.join(currentDir, 'completed.csv'))
+        didNotStart = pandas.read_csv(os.path.join(currentDir, 'didNotStart.csv'))
+        dleError = pandas.read_csv(os.path.join(currentDir, 'dleError.csv'))
+        noAssignments = pandas.read_csv(os.path.join(currentDir, 'noAssignments.csv'))
 
         time.sleep(2)
 
         response = {
+            'timestamp': timestamp,
             'pending': pending.to_json(orient='records'),
             'inProgress': inProgress.to_json(orient='records'),
             'completed': completed.to_json(orient='records'),

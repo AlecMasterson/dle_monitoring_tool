@@ -3,15 +3,15 @@ class Overview extends React.Component {
         super(props);
 
         this.headers1 = [
-            { name: "ROUTING AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "ROUTING TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "START", sort: true }
+            { name: "ROUTING_AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
+            { name: "ROUTING_TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
+            { name: "RUN_TIME_GMT", sort: true }
         ];
         this.headers2 = [
-            { name: "ROUTING AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "ROUTING TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
+            { name: "ROUTING_AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
+            { name: "ROUTING_TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
             { name: "SERVICE", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "START", sort: true }
+            { name: "RUN_TIME_GMT", sort: true }
         ];
     }
 
