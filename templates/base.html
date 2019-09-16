@@ -14,7 +14,7 @@
 
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/react-bootstrap-table.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body className="bg-gray-300">
@@ -30,8 +30,12 @@
         <script type="text/javascript" src="{{ url_for('static', filename='js/react/babel.min.js') }}"></script>
         <script type="text/javascript"
                 src="{{ url_for('static', filename='js/react/react-bootstrap-table.min.js') }}"></script>
+        <script type="text/javascript"
+                src="{{ url_for('static', filename='js/react/react-prop-types.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/react/react-charts.min.js') }}"></script>
 
-        <script type="text/babel" src="{{ url_for('static', filename='components/monitor.js') }}"></script>
+        <script type="text/babel" src="{{ url_for('static', filename='components/table.js') }}"></script>
+        <script type="text/babel" src="{{ url_for('static', filename='components/overview.js') }}"></script>
         <script type="text/babel" src="{{ url_for('static', filename='components/root.js') }}"></script>
 </body>
 

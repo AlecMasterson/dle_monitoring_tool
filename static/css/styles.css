@@ -1,0 +1,18 @@
+body {
+  background-color: #CCCCCC;
+  overflow-x: hidden;
+}
+
+nav {
+  background-color: #0057B8;
+  cursor: default;
+}
+
+.icon {
+  cursor: pointer;
+}
+
+.disabled-section {
+  opacity: 0.4;
+  pointer-events: none;
+}
