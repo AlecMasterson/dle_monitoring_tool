@@ -2,16 +2,18 @@ class Overview extends React.Component {
     constructor(props) {
         super(props);
 
+        this.headersProgressChart = ["STATUS", "LOAD DATA", "SAME LOCATION", "DISTANCE MATRIX", "OPTIMIZER", "ASSIGN", "CHECK LOG", "SUMMARY"];
+
         this.headers1 = [
             { name: "ROUTING_AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
             { name: "ROUTING_TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "RUN_TIME_GMT", sort: true }
+            { name: "RUN_TIME_GMT", sort: true, filter: { type: "TextFilter", delay: 500 } }
         ];
         this.headers2 = [
             { name: "ROUTING_AREA", sort: true, filter: { type: "TextFilter", delay: 500 } },
             { name: "ROUTING_TYPE", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "SERVICE", sort: true, filter: { type: "TextFilter", delay: 500 } },
-            { name: "RUN_TIME_GMT", sort: true }
+            { name: "RUN_TIME_GMT", sort: true, filter: { type: "TextFilter", delay: 500 } },
+            { name: "SERVICE", sort: true, filter: { type: "TextFilter", delay: 500 } }
         ];
     }
 
@@ -22,13 +24,45 @@ class Overview extends React.Component {
         const didNotStart = this.props.didNotStart;
         const dleError = this.props.dleError;
         const noAssignments = this.props.noAssignments;
+        const progressChart = this.props.progressChart;
+
+        const progressChartHeaders = this.headersProgressChart.map((header, index) =>
+            <th key={index}>{header}</th>
+        );
+
+        const progressChartRows = progressChart.map((row, index) => {
+            const columns = this.headersProgressChart.map((header, index2) => <td key={index2}>{row[header]}</td>);
+            return <tr key={index}>{columns}</tr>;
+        });
 
         return (
-            <div className="container-fluid col-8 my-4">
-                <h2 className="font-weight-bold text-uppercase">{"OVERVIEW"}</h2>
+            <div className="container-fluid col-10 my-4">
+                <div className="alert alert-primary" role="alert">
+                    {"This tool was developed by Alec Masterson during his free-time outside of work."}
+                    <br />
+                    {"Please give feedback and improvement suggestions by October 4th..."}
+                </div>
+
+                <h2 className="mt-4 font-weight-bold text-uppercase">{"PROGRESS CHART"}</h2>
+                <div className="card text-center">
+                    <div className="card-body">
+                        <div className="table-responsive">
+                            <table className="table table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>{progressChartHeaders}</tr>
+                                </thead>
+                                <tbody>
+                                    {progressChartRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 className="mt-4 font-weight-bold text-uppercase">{"OVERVIEW"}</h2>
                 <ul className="list-group">
                     <OverviewItem name="PENDING" value={pending.length} headers={this.headers1} data={pending} />
-                    <OverviewItem name="IN PROGRESS" value={inProgress.length} headers={this.headers1} data={inProgress} />
+                    <OverviewItem name="IN PROGRESS" value={inProgress.length} headers={this.headers2} data={inProgress} />
                     <OverviewItem name="COMPLETED" value={completed.length} headers={this.headers1} data={completed} />
                 </ul>
 

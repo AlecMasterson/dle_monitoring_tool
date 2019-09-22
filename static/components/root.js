@@ -8,13 +8,15 @@ class Root extends React.Component {
             failed: false,
             loading: false,
             lastUpdated: "Not Updated",
+            fileTimestamp: "Not Updated",
 
             pending: [],
             inProgress: [],
             completed: [],
             didNotStart: [],
             dleError: [],
-            noAssignments: []
+            noAssignments: [],
+            progressChart: []
         };
     }
 
@@ -33,13 +35,15 @@ class Root extends React.Component {
                         failed: false,
                         loading: false,
                         lastUpdated: currentTime[1] + " " + currentTime[2],
+                        fileTimestamp: result["fileTimestamp"],
 
                         pending: JSON.parse(result["pending"]),
                         inProgress: JSON.parse(result["inProgress"]),
                         completed: JSON.parse(result["completed"]),
                         didNotStart: JSON.parse(result["didNotStart"]),
                         dleError: JSON.parse(result["dleError"]),
-                        noAssignments: JSON.parse(result["noAssignments"])
+                        noAssignments: JSON.parse(result["noAssignments"]),
+                        progressChart: JSON.parse(result["progressChart"])
                     });
 
                     setTimeout(this.update, 15000);
@@ -50,7 +54,8 @@ class Root extends React.Component {
                     this.setState({
                         failed: true,
                         loading: false,
-                        lastUpdated: currentTime[1] + " " + currentTime[2]
+                        lastUpdated: currentTime[1] + " " + currentTime[2],
+                        fileTimestamp: "Files Not Found"
                     });
 
                     setTimeout(this.update, 15000);
@@ -64,6 +69,7 @@ class Root extends React.Component {
         const failed = this.state.failed;
         const loading = this.state.loading;
         const lastUpdated = this.state.lastUpdated;
+        const fileTimestamp = this.state.fileTimestamp;
 
         const pending = this.state.pending;
         const inProgress = this.state.inProgress;
@@ -71,6 +77,7 @@ class Root extends React.Component {
         const didNotStart = this.state.didNotStart;
         const dleError = this.state.dleError;
         const noAssignments = this.state.noAssignments;
+        const progressChart = this.state.progressChart;
 
         const loadingSpinner = (
             <div className="spinner-border" role="status">
@@ -91,7 +98,7 @@ class Root extends React.Component {
                     <span className="navbar-brand font-weight-bold">{title}</span>
                     <div className="d-flex h-100 text-white">
                         {failed ? failedToLoad : null}
-                        <span className="my-auto mr-2">{"Last Updated: " + (!loading ? lastUpdated : "")}</span>
+                        <span className="my-auto mr-2">{"Last Updated: " + (!loading ? lastUpdated + ", File Timestamp: " + fileTimestamp : "")}</span>
                         {loading ? loadingSpinner : null}
                     </div>
                 </nav>
@@ -104,6 +111,7 @@ class Root extends React.Component {
                         didNotStart={didNotStart}
                         dleError={dleError}
                         noAssignments={noAssignments}
+                        progressChart={progressChart}
                     />
                 </div>
             </div>

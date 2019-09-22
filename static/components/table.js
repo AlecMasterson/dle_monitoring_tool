@@ -18,8 +18,14 @@ class DataTable extends React.Component {
                 </TableHeaderColumn>);
         }
 
+        const options = {
+            exportCSVBtn: (onClick) => {
+                return <ExportCSVButton style={{ backgroundColor: "#0087b8" }} />;
+            }
+        };
+
         return (
-            <BootstrapTable data={this.props.data} striped hover bordered pagination version="4">
+            <BootstrapTable data={this.props.data} options={options} striped exportCSV hover bordered pagination version="4">
                 {columns}
             </BootstrapTable>
         );

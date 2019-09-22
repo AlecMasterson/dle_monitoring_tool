@@ -6,6 +6,7 @@ import time
 import os
 import datetime
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -15,12 +16,11 @@ def create_app():
 
     @app.route('/api/overview/')
     def apiStatusMonitor():
-
         baseDirectory = '/opt/app/dle/files/MONITOR/{}/'.format(datetime.datetime.now().strftime('%Y-%m-%d'))
         currentDir = max([os.path.join(baseDirectory, d) for d in os.listdir(baseDirectory)], key=os.path.getmtime)
         latestDir = currentDir.split('/')[-1]
 
-        timestamp = latestDir[:-2] + ':' + latestDir[-2:]
+        fileTimestamp = latestDir[:-2] + ':' + latestDir[-2:]
 
         pending = pandas.read_csv(os.path.join(currentDir, 'pending.csv'))
         inProgress = pandas.read_csv(os.path.join(currentDir, 'inProgress.csv'))
@@ -28,17 +28,19 @@ def create_app():
         didNotStart = pandas.read_csv(os.path.join(currentDir, 'didNotStart.csv'))
         dleError = pandas.read_csv(os.path.join(currentDir, 'dleError.csv'))
         noAssignments = pandas.read_csv(os.path.join(currentDir, 'noAssignments.csv'))
+        progressChart = pandas.read_csv(os.path.join(currentDir, 'progressChart.csv'))
 
         time.sleep(2)
 
         response = {
-            'timestamp': timestamp,
+            'fileTimestamp': fileTimestamp,
             'pending': pending.to_json(orient='records'),
             'inProgress': inProgress.to_json(orient='records'),
             'completed': completed.to_json(orient='records'),
             'didNotStart': didNotStart.to_json(orient='records'),
             'dleError': dleError.to_json(orient='records'),
-            'noAssignments': noAssignments.to_json(orient='records')
+            'noAssignments': noAssignments.to_json(orient='records'),
+            'progressChart': progressChart.to_json(orient='records')
         }
 
         return app.response_class(
