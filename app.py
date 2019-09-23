@@ -29,6 +29,9 @@ def create_app():
         dleError = pandas.read_csv(os.path.join(currentDir, 'dleError.csv'))
         noAssignments = pandas.read_csv(os.path.join(currentDir, 'noAssignments.csv'))
         progressChart = pandas.read_csv(os.path.join(currentDir, 'progressChart.csv'))
+        progressChart = progressChart.rename({
+            'LoadData': 'LOAD DATA', 'SameLocation': 'SAME LOCATION', 'DistanceMatrix': 'DISTANCE MATRIX', 'Optaplanner': 'OPTIMIZER', 'Assign': 'ASSIGN', 'CheckLog': 'CHECK LOG', 'Summary': 'SUMMARY'
+        }, axis=1)
 
         time.sleep(2)
 
