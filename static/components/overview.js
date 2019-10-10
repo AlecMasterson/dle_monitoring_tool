@@ -38,7 +38,7 @@ class Overview extends React.Component {
         return (
             <div className="container-fluid col-10 my-4">
                 <div className="alert alert-primary" role="alert">
-                    {"This tool was developed by Alec Masterson during his free-time outside of work."}
+                    {"This tool was developed by Alec Masterson (am790d) during his free-time outside of work."}
                     <br />
                     {"Please give feedback and improvement suggestions by October 4th..."}
                 </div>

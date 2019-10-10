@@ -46,7 +46,7 @@ class Root extends React.Component {
                         progressChart: JSON.parse(result["progressChart"])
                     });
 
-                    setTimeout(this.update, 15000);
+                    setTimeout(this.update, 30000);
                 },
                 (error) => {
                     let currentTime = new Date().toLocaleString().split(" ");
@@ -58,7 +58,7 @@ class Root extends React.Component {
                         fileTimestamp: "Files Not Found"
                     });
 
-                    setTimeout(this.update, 15000);
+                    setTimeout(this.update, 30000);
                 }
             )
         );

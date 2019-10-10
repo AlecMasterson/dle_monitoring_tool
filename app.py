@@ -20,7 +20,7 @@ def create_app():
         currentDir = max([os.path.join(baseDirectory, d) for d in os.listdir(baseDirectory)], key=os.path.getmtime)
         latestDir = currentDir.split('/')[-1]
 
-        fileTimestamp = latestDir[:-2] + ':' + latestDir[-2:]
+        fileTimestamp = latestDir[:-2] + ':' + latestDir[-2:] + ' GMT'
 
         pending = pandas.read_csv(os.path.join(currentDir, 'pending.csv'))
         inProgress = pandas.read_csv(os.path.join(currentDir, 'inProgress.csv'))
